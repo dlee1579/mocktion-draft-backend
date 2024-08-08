@@ -90,7 +90,7 @@ def create_player(player: schemas.PlayerCreate, db: Session = Depends(get_db)):
     return crud.create_player(db=db, player=player)
 
 @app.get('/auction/nfl-com')
-def get_auction_values_from_nfl_com():
+def get_auction_values_from_nfl_com(response_model=list[schemas.Player]):
     def parse_player_name_from_overall(overall: str):
         keyword = " - "
         return overall[:overall.find(parse_position_from_overall(overall))].strip()
@@ -137,8 +137,7 @@ def get_auction_values_from_nfl_com():
     master.reset_index(inplace=True,drop=True)
     master.reset_index(inplace=True)
     master.rename(columns={"index": "id"}, inplace=True)
-    print(master)
-    return json.loads(master.to_json(orient='records'))
+    return [schemas.Player(**player) for player in master.to_dict(orient='records')]
 
 @app.get('/auction/espn')
 def get_auction_values_from_espn(response_model=list[schemas.Player]):
